@@ -1,4 +1,4 @@
-package com.cantor.app;
+package com.exchange.app;
 
 public class App 
 {
