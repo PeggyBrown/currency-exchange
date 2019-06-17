@@ -1,10 +1,8 @@
 package com.exchange.app;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.Currency;
@@ -12,51 +10,81 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 class RatesProviderTests {
+
+    public static final String SEK = "SEK";
+    public static final String USD = "USD";
+    public static final String EUR = "EUR";
 
     private final ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
     private final RatesProvider provider = new RatesProvider(apiClient);
+    private Map<String, Double> exchangeRates;
+
+    @BeforeEach
+    void setUp() {
+        exchangeRates = new HashMap() {
+        };
+    }
 
     @Test
-    void shouldReturnPriceInEUR() {
+    @DisplayName("For default currency (EUR) returns all rates")
+    void shouldReturnCurrencyExchangeRatesForEUR() {
+
         //given
-        ExchangeRates rates = createRates();
+        ExchangeRates rates = initializeRates();
         Mockito.when(apiClient.getLatestRates()).thenReturn(rates);
 
         //when
-        Double rate = provider.getExchangeRateInEUR(Currency.getInstance("SEK"));
+        Double rateSEK = provider.getExchangeRateInEUR(Currency.getInstance(SEK));
+        Double rateUSD = provider.getExchangeRateInEUR(Currency.getInstance(USD));
 
         //then
-        assertTrue(rates.rates.containsKey("SEK"));
-        assertEquals(rates.rates.get("SEK"), rate);
+        assertAll(
+                () -> assertEquals(rates.rates.get(USD), rateUSD, "USD rate should be included"),
+                () -> assertEquals(rates.rates.get(SEK), rateSEK, "SEK rate should be included")
+        );
     }
 
     @Test
-    void shouldReturnCurrencyExchangeRate() {
+    void shouldReturnCurrencyExchangeRatesForOtherCurrency() {
         //given
-        Map<String, Double> exchangeRates = new HashMap<String, Double>(){};
-        exchangeRates.put("EUR", 0.8);
-        exchangeRates.put("SEK", 15.30);
+        exchangeRates.put(EUR, 0.8);
+        exchangeRates.put(SEK, 15.30);
 
-        ExchangeRates rates = createRates("USD", new Date(), exchangeRates);
-        Mockito.when(apiClient.getLatestRates("USD")).thenReturn(rates);
+        ExchangeRates rates = initializeRates(USD, new Date(), exchangeRates);
+        Mockito.when(apiClient.getLatestRates(USD)).thenReturn(rates);
 
         //when
-        Double rate = provider.getExchangeRate(Currency.getInstance("SEK"), Currency.getInstance("USD"));
+        Double rate = provider.getExchangeRate(Currency.getInstance(SEK), Currency.getInstance(USD));
 
         //then
-        assertTrue(rates.rates.containsKey("SEK"));
-        assertEquals(rates.rates.get("SEK"), rate);
+        assertTrue(rates.rates.containsKey(SEK));
+        assertEquals(rates.rates.get(SEK), rate);
     }
 
-    private ExchangeRates createRates(){
-        Map<String, Double> rates = new HashMap<String, Double>(){};
-        rates.put("USD", 1.22);
-        rates.put("SEK", 10.30);
-        return new ExchangeRates("EUR", new Date(), rates);
+    @Test
+    void shouldThrowExceptionWhenCurrencyNotSupported() {
+        //given
+        Mockito.when(apiClient.getLatestRates()).thenThrow(new IllegalArgumentException());
+
+        //then
+
+        IllegalArgumentException actual =
+                assertThrows(IllegalArgumentException.class,
+                        () -> provider.getExchangeRateInEUR(Currency.getInstance("CHF")));
+
+        assertEquals("Currency is not supported: CHF", actual.getMessage());
     }
 
-    private ExchangeRates createRates(String base, Date date, Map<String, Double> rates){
+    private ExchangeRates initializeRates() {
+        exchangeRates.put(USD, 1.22);
+        exchangeRates.put(SEK, 10.30);
+        return initializeRates(EUR, new Date(), exchangeRates);
+    }
+
+    private ExchangeRates initializeRates(String base, Date date, Map<String, Double> rates) {
         return new ExchangeRates(base, date, rates);
     }
 
