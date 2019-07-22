@@ -78,10 +78,29 @@ class RatesProviderTests {
         assertEquals("Currency is not supported: CHF", actual.getMessage());
     }
 
+    @Test
+    void shouldGetRatesOnlyOnce() {
+        //given
+        ExchangeRates rates = initializeRates(USD);
+        Mockito.when(apiClient.getLatestRates(USD)).thenReturn(rates);
+
+        //when
+        provider.getExchangeRate(Currency.getInstance(SEK), Currency.getInstance(USD));
+
+        //then
+        Mockito.verify(apiClient, Mockito.times(1)).getLatestRates(USD);
+    }
+
     private ExchangeRates initializeRates() {
         exchangeRates.put(USD, 1.22);
         exchangeRates.put(SEK, 10.30);
         return initializeRates(EUR, new Date(), exchangeRates);
+    }
+
+    private ExchangeRates initializeRates(String base) {
+        exchangeRates.put(EUR, 1.22);
+        exchangeRates.put(SEK, 10.30);
+        return initializeRates(base, new Date(), exchangeRates);
     }
 
     private ExchangeRates initializeRates(String base, Date date, Map<String, Double> rates) {
