@@ -29,6 +29,21 @@ class RatesProviderTests {
     }
 
     @Test
+    @DisplayName("For default currency (EUR) returns USD rate")
+    void shouldReturnUSDExchangeRatesForEUR() {
+
+        //given
+        ExchangeRates rates = initializeRates();
+        Mockito.when(apiClient.getLatestRates()).thenReturn(rates);
+
+        //when
+        Double rateUSD = provider.getExchangeRateInEUR(Currency.getInstance(USD));
+
+        //then
+        assertEquals(rates.rates.get(USD), rateUSD, "USD rate should be included");
+    }
+
+    @Test
     @DisplayName("For default currency (EUR) returns all rates")
     void shouldReturnCurrencyExchangeRatesForEUR() {
 
@@ -81,14 +96,14 @@ class RatesProviderTests {
     @Test
     void shouldGetRatesOnlyOnce() {
         //given
-        ExchangeRates rates = initializeRates(USD);
-        Mockito.when(apiClient.getLatestRates(USD)).thenReturn(rates);
+        ExchangeRates rates = initializeRates();
+        Mockito.when(apiClient.getLatestRates()).thenReturn(rates);
 
         //when
-        provider.getExchangeRate(Currency.getInstance(SEK), Currency.getInstance(USD));
+        provider.getExchangeRateInEUR(Currency.getInstance(SEK));
 
         //then
-        Mockito.verify(apiClient, Mockito.times(1)).getLatestRates(USD);
+        Mockito.verify(apiClient, Mockito.times(1)).getLatestRates();
     }
 
     private ExchangeRates initializeRates() {
