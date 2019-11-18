@@ -18,11 +18,11 @@ class RatesProviderTests {
     private static final String USD = "USD";
     private static final String EUR = "EUR";
 
-    private Map<String, Double> exchangeRates;
+    private Map<String, Double> rates;
 
     @BeforeEach
     void setUp() {
-        exchangeRates = new HashMap<>() {};
+        rates = new HashMap<>() {};
     }
 
     @Test
@@ -69,10 +69,10 @@ class RatesProviderTests {
     void shouldReturnCurrencyExchangeRatesForOtherCurrency() {
         //given
         ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
-        exchangeRates.put(EUR, 0.8);
-        exchangeRates.put(SEK, 15.30);
+        rates.put(EUR, 0.8);
+        rates.put(SEK, 15.30);
 
-        ExchangeRates exchangeRates = initializeExchangeRates(USD, new Date(), exchangeRates);
+        ExchangeRates exchangeRates = initializeExchangeRates(USD, new Date(), rates);
         Mockito.when(apiClient.getLatestRates(USD)).thenReturn(exchangeRates);
 
         RatesProvider provider = new RatesProvider(apiClient);
@@ -119,15 +119,15 @@ class RatesProviderTests {
     }
 
     private ExchangeRates initializeExchangeRates() {
-        exchangeRates.put(USD, 1.22);
-        exchangeRates.put(SEK, 10.30);
-        return initializeExchangeRates(EUR, new Date(), exchangeRates);
+        rates.put(USD, 1.22);
+        rates.put(SEK, 10.30);
+        return initializeExchangeRates(EUR, new Date(), rates);
     }
 
     private ExchangeRates initializeExchangeRates(String base) {
-        exchangeRates.put(EUR, 1.22);
-        exchangeRates.put(SEK, 10.30);
-        return initializeExchangeRates(base, new Date(), exchangeRates);
+        rates.put(EUR, 1.22);
+        rates.put(SEK, 10.30);
+        return initializeExchangeRates(base, new Date(), rates);
     }
 
     private ExchangeRates initializeExchangeRates(String base, Date date, Map<String, Double> rates) {
