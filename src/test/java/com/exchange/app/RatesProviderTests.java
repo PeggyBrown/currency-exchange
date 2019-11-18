@@ -41,7 +41,7 @@ class RatesProviderTests {
         Double rateUSD = provider.getExchangeRateInEUR(Currency.getInstance(USD));
 
         //then
-        assertEquals(exchangeRates.rates.get(USD), rateUSD, "USD rate should be included");
+        assertEquals(exchangeRates.get(USD), rateUSD, "USD rate should be included");
     }
 
     @Test
@@ -61,8 +61,8 @@ class RatesProviderTests {
 
         //then
         assertAll(
-                () -> assertEquals(exchangeRates.rates.get(USD), rateUSD, "USD rate should be included"),
-                () -> assertEquals(exchangeRates.rates.get(SEK), rateSEK, "SEK rate should be included")
+                () -> assertEquals(exchangeRates.get(USD), rateUSD, "USD rate should be included"),
+                () -> assertEquals(exchangeRates.get(SEK), rateSEK, "SEK rate should be included")
         );
     }
 
@@ -82,8 +82,7 @@ class RatesProviderTests {
         Double rate = provider.getExchangeRate(Currency.getInstance(SEK), Currency.getInstance(USD));
 
         //then
-        assertTrue(exchangeRates.rates.containsKey(SEK));
-        assertEquals(exchangeRates.rates.get(SEK), rate);
+        assertEquals(exchangeRates.get(SEK), rate);
     }
 
     @Test

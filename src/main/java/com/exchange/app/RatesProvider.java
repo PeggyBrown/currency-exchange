@@ -12,13 +12,13 @@ public class RatesProvider {
 
     public Double getExchangeRateInEUR(Currency requested) {
         try {
-            return apiClient.getLatestRates().rates.get(requested.getCurrencyCode());
+            return apiClient.getLatestRates().get(requested.getCurrencyCode());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Currency is not supported: " + requested.getCurrencyCode());
         }
     }
 
     public Double getExchangeRate(Currency requested, Currency exchanged) {
-        return apiClient.getLatestRates(exchanged.getCurrencyCode()).rates.get(requested.getCurrencyCode());
+        return apiClient.getLatestRates(exchanged.getCurrencyCode()).get(requested.getCurrencyCode());
     }
 }

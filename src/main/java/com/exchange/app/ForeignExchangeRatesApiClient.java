@@ -21,15 +21,3 @@ public interface ForeignExchangeRatesApiClient {
 
     ExchangeRates getHistoricalRates(DateTime start_at, DateTime end_at, String base);
 }
-
-class ExchangeRates {
-    String base;
-    DateTime date;
-    Map<String, Double> rates;
-
-    public ExchangeRates(String base, DateTime date, Map<String, Double> rates) {
-        this.base = base;
-        this.date = date;
-        this.rates = rates;
-    }
-}
