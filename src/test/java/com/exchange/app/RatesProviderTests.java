@@ -1,12 +1,12 @@
 package com.exchange.app;
 
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Currency;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +22,8 @@ class RatesProviderTests {
 
     @BeforeEach
     void setUp() {
-        rates = new HashMap<>() {};
+        rates = new HashMap<String, Double>() {
+        };
     }
 
     @Test
@@ -72,7 +73,7 @@ class RatesProviderTests {
         rates.put(EUR, 0.8);
         rates.put(SEK, 15.30);
 
-        ExchangeRates exchangeRates = initializeExchangeRates(USD, new Date(), rates);
+        ExchangeRates exchangeRates = initializeExchangeRates(USD, DateTime.now(), rates);
         Mockito.when(apiClient.getLatestRates(USD)).thenReturn(exchangeRates);
 
         RatesProvider provider = new RatesProvider(apiClient);
@@ -121,16 +122,16 @@ class RatesProviderTests {
     private ExchangeRates initializeExchangeRates() {
         rates.put(USD, 1.22);
         rates.put(SEK, 10.30);
-        return initializeExchangeRates(EUR, new Date(), rates);
+        return initializeExchangeRates(EUR, DateTime.now(), rates);
     }
 
     private ExchangeRates initializeExchangeRates(String base) {
         rates.put(EUR, 1.22);
         rates.put(SEK, 10.30);
-        return initializeExchangeRates(base, new Date(), rates);
+        return initializeExchangeRates(base, DateTime.now(), rates);
     }
 
-    private ExchangeRates initializeExchangeRates(String base, Date date, Map<String, Double> rates) {
+    private ExchangeRates initializeExchangeRates(String base, DateTime date, Map<String, Double> rates) {
         return new ExchangeRates(base, date, rates);
     }
 
