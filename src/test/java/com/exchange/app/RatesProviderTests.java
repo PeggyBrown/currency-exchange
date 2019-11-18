@@ -14,16 +14,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RatesProviderTests {
 
-    public static final String SEK = "SEK";
-    public static final String USD = "USD";
-    public static final String EUR = "EUR";
+    private static final String SEK = "SEK";
+    private static final String USD = "USD";
+    private static final String EUR = "EUR";
 
     private Map<String, Double> exchangeRates;
 
     @BeforeEach
     void setUp() {
-        exchangeRates = new HashMap() {
-        };
+        exchangeRates = new HashMap<>() {};
     }
 
     @Test
@@ -32,8 +31,8 @@ class RatesProviderTests {
 
         //given
         ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
-        ExchangeRates rates = initializeRates();
-        Mockito.when(apiClient.getLatestRates()).thenReturn(rates);
+        ExchangeRates exchangeRates = initializeExchangeRates();
+        Mockito.when(apiClient.getLatestRates()).thenReturn(exchangeRates);
 
         RatesProvider provider = new RatesProvider(apiClient);
 
@@ -41,7 +40,7 @@ class RatesProviderTests {
         Double rateUSD = provider.getExchangeRateInEUR(Currency.getInstance(USD));
 
         //then
-        assertEquals(rates.rates.get(USD), rateUSD, "USD rate should be included");
+        assertEquals(exchangeRates.rates.get(USD), rateUSD, "USD rate should be included");
     }
 
     @Test
@@ -50,8 +49,8 @@ class RatesProviderTests {
 
         //given
         ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
-        ExchangeRates rates = initializeRates();
-        Mockito.when(apiClient.getLatestRates()).thenReturn(rates);
+        ExchangeRates exchangeRates = initializeExchangeRates();
+        Mockito.when(apiClient.getLatestRates()).thenReturn(exchangeRates);
 
         RatesProvider provider = new RatesProvider(apiClient);
 
@@ -61,8 +60,8 @@ class RatesProviderTests {
 
         //then
         assertAll(
-                () -> assertEquals(rates.rates.get(USD), rateUSD, "USD rate should be included"),
-                () -> assertEquals(rates.rates.get(SEK), rateSEK, "SEK rate should be included")
+                () -> assertEquals(exchangeRates.rates.get(USD), rateUSD, "USD rate should be included"),
+                () -> assertEquals(exchangeRates.rates.get(SEK), rateSEK, "SEK rate should be included")
         );
     }
 
@@ -73,8 +72,8 @@ class RatesProviderTests {
         exchangeRates.put(EUR, 0.8);
         exchangeRates.put(SEK, 15.30);
 
-        ExchangeRates rates = initializeRates(USD, new Date(), exchangeRates);
-        Mockito.when(apiClient.getLatestRates(USD)).thenReturn(rates);
+        ExchangeRates exchangeRates = initializeExchangeRates(USD, new Date(), exchangeRates);
+        Mockito.when(apiClient.getLatestRates(USD)).thenReturn(exchangeRates);
 
         RatesProvider provider = new RatesProvider(apiClient);
 
@@ -82,8 +81,8 @@ class RatesProviderTests {
         Double rate = provider.getExchangeRate(Currency.getInstance(SEK), Currency.getInstance(USD));
 
         //then
-        assertTrue(rates.rates.containsKey(SEK));
-        assertEquals(rates.rates.get(SEK), rate);
+        assertTrue(exchangeRates.rates.containsKey(SEK));
+        assertEquals(exchangeRates.rates.get(SEK), rate);
     }
 
     @Test
@@ -107,8 +106,8 @@ class RatesProviderTests {
     void shouldGetRatesOnlyOnce() {
         //given
         ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
-        ExchangeRates rates = initializeRates();
-        Mockito.when(apiClient.getLatestRates()).thenReturn(rates);
+        ExchangeRates exchangeRates = initializeExchangeRates();
+        Mockito.when(apiClient.getLatestRates()).thenReturn(exchangeRates);
 
         RatesProvider provider = new RatesProvider(apiClient);
 
@@ -119,19 +118,19 @@ class RatesProviderTests {
         Mockito.verify(apiClient, Mockito.times(1)).getLatestRates();
     }
 
-    private ExchangeRates initializeRates() {
+    private ExchangeRates initializeExchangeRates() {
         exchangeRates.put(USD, 1.22);
         exchangeRates.put(SEK, 10.30);
-        return initializeRates(EUR, new Date(), exchangeRates);
+        return initializeExchangeRates(EUR, new Date(), exchangeRates);
     }
 
-    private ExchangeRates initializeRates(String base) {
+    private ExchangeRates initializeExchangeRates(String base) {
         exchangeRates.put(EUR, 1.22);
         exchangeRates.put(SEK, 10.30);
-        return initializeRates(base, new Date(), exchangeRates);
+        return initializeExchangeRates(base, new Date(), exchangeRates);
     }
 
-    private ExchangeRates initializeRates(String base, Date date, Map<String, Double> rates) {
+    private ExchangeRates initializeExchangeRates(String base, Date date, Map<String, Double> rates) {
         return new ExchangeRates(base, date, rates);
     }
 
