@@ -18,8 +18,6 @@ class RatesProviderTests {
     public static final String USD = "USD";
     public static final String EUR = "EUR";
 
-    private final ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
-    private final RatesProvider provider = new RatesProvider(apiClient);
     private Map<String, Double> exchangeRates;
 
     @BeforeEach
@@ -30,11 +28,14 @@ class RatesProviderTests {
 
     @Test
     @DisplayName("For default currency (EUR) returns USD rate")
-    void shouldReturnUSDExchangeRatesForEUR() {
+    void test1() {
 
         //given
+        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
         ExchangeRates rates = initializeRates();
         Mockito.when(apiClient.getLatestRates()).thenReturn(rates);
+
+        RatesProvider provider = new RatesProvider(apiClient);
 
         //when
         Double rateUSD = provider.getExchangeRateInEUR(Currency.getInstance(USD));
@@ -45,11 +46,14 @@ class RatesProviderTests {
 
     @Test
     @DisplayName("For default currency (EUR) returns all rates")
-    void shouldReturnCurrencyExchangeRatesForEUR() {
+    void test2() {
 
         //given
+        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
         ExchangeRates rates = initializeRates();
         Mockito.when(apiClient.getLatestRates()).thenReturn(rates);
+
+        RatesProvider provider = new RatesProvider(apiClient);
 
         //when
         Double rateSEK = provider.getExchangeRateInEUR(Currency.getInstance(SEK));
@@ -65,11 +69,14 @@ class RatesProviderTests {
     @Test
     void shouldReturnCurrencyExchangeRatesForOtherCurrency() {
         //given
+        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
         exchangeRates.put(EUR, 0.8);
         exchangeRates.put(SEK, 15.30);
 
         ExchangeRates rates = initializeRates(USD, new Date(), exchangeRates);
         Mockito.when(apiClient.getLatestRates(USD)).thenReturn(rates);
+
+        RatesProvider provider = new RatesProvider(apiClient);
 
         //when
         Double rate = provider.getExchangeRate(Currency.getInstance(SEK), Currency.getInstance(USD));
@@ -82,7 +89,10 @@ class RatesProviderTests {
     @Test
     void shouldThrowExceptionWhenCurrencyNotSupported() {
         //given
+        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
         Mockito.when(apiClient.getLatestRates()).thenThrow(new IllegalArgumentException());
+
+        RatesProvider provider = new RatesProvider(apiClient);
 
         //then
 
@@ -96,8 +106,11 @@ class RatesProviderTests {
     @Test
     void shouldGetRatesOnlyOnce() {
         //given
+        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
         ExchangeRates rates = initializeRates();
         Mockito.when(apiClient.getLatestRates()).thenReturn(rates);
+
+        RatesProvider provider = new RatesProvider(apiClient);
 
         //when
         provider.getExchangeRateInEUR(Currency.getInstance(SEK));
