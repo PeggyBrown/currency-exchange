@@ -19,3 +19,4 @@ class ExchangeRates {
         return rates.get(currency);
     }
 }
+

@@ -14,7 +14,7 @@ public class RatesProvider {
         try {
             return apiClient.getLatestRates().get(requested.getCurrencyCode());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Currency is not supported: " + requested.getCurrencyCode());
+            throw new CurrencyNotSupportedException("Currency is not supported: " + requested.getCurrencyCode());
         }
     }
 
