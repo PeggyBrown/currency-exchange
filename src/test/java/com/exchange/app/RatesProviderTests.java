@@ -1,5 +1,6 @@
 package com.exchange.app;
 
+import org.assertj.core.api.Assertions;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +11,7 @@ import java.util.Currency;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RatesProviderTests {
@@ -41,13 +43,12 @@ class RatesProviderTests {
         Double rateUSD = provider.getExchangeRateInEUR(Currency.getInstance(USD));
 
         //then
-        assertEquals(exchangeRates.get(USD), rateUSD, "USD rate should be included");
+        assertThat(exchangeRates.get(USD)).isEqualTo(rateUSD);
     }
 
     @Test
     @DisplayName("For default currency (EUR) returns all rates")
     void test2() {
-
         //given
         ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
         ExchangeRates exchangeRates = initializeExchangeRates();
