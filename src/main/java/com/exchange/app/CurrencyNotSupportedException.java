@@ -6,4 +6,9 @@ public class CurrencyNotSupportedException extends RuntimeException {
     public CurrencyNotSupportedException(String message) {
         this.message = message;
     }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
 }

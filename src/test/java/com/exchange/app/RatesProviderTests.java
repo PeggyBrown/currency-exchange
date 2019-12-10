@@ -1,6 +1,5 @@
 package com.exchange.app;
 
-import org.assertj.core.api.Assertions;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -96,8 +95,8 @@ class RatesProviderTests {
 
         //then
 
-        IllegalArgumentException actual =
-                assertThrows(IllegalArgumentException.class,
+        CurrencyNotSupportedException actual =
+                assertThrows(CurrencyNotSupportedException.class,
                         () -> provider.getExchangeRateInEUR(Currency.getInstance("CHF")));
 
         assertEquals("Currency is not supported: CHF", actual.getMessage());
