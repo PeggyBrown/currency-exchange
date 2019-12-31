@@ -15,9 +15,9 @@ public interface ForeignExchangeRatesApiClient {
 
     ExchangeRates getHistoricalRates(DateTime date);
 
-    ExchangeRates getHistoricalRates(DateTime start_at, DateTime end_at);
+    List<ExchangeRates> getHistoricalRates(DateTime start_at, DateTime end_at);
 
-    ExchangeRates getHistoricalRates(DateTime start_at, DateTime end_at, List<String> symbols);
+    List<ExchangeRates> getHistoricalRates(DateTime start_at, DateTime end_at, List<String> symbols);
 
-    ExchangeRates getHistoricalRates(DateTime start_at, DateTime end_at, String base);
+    List<ExchangeRates> getHistoricalRates(DateTime start_at, DateTime end_at, String base);
 }
