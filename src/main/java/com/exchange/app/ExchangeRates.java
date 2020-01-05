@@ -4,7 +4,7 @@ import org.joda.time.DateTime;
 
 import java.util.Map;
 
-class ExchangeRates {
+public class ExchangeRates {
     private String base;
     private DateTime date;
     private Map<String, Double> rates;
@@ -17,6 +17,10 @@ class ExchangeRates {
 
     public Double get(String currency) {
         return rates.get(currency);
+    }
+
+    public DateTime getDate() {
+        return date;
     }
 }
 

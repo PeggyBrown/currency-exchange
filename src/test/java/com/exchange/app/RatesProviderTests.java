@@ -4,14 +4,17 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
-import java.util.Currency;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+import static org.assertj.core.api.Assertions.anyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 
 class RatesProviderTests {
 
@@ -70,19 +73,31 @@ class RatesProviderTests {
     void shouldReturnCurrencyExchangeRatesForOtherCurrency() {
         //given
         ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
-        rates.put(EUR, 0.8);
-        rates.put(SEK, 15.30);
+        ExchangeRates exchangeRates = initializeExchangeRates();
+        List<String> currencies = Arrays.asList(new String[]{EUR, SEK, USD});
 
-        ExchangeRates exchangeRates = initializeExchangeRates(USD, DateTime.now(), rates);
-        Mockito.when(apiClient.getLatestRates(USD)).thenReturn(exchangeRates);
+        Mockito.when(apiClient.getLatestRates(anyString())).thenAnswer(
+                new Answer<ExchangeRates>() {
+
+                    @Override
+                    public ExchangeRates answer(InvocationOnMock invocationOnMock) throws Throwable {
+                        Object base = invocationOnMock.getArgument(0);
+                        if (currencies.contains(base)) {
+                            return exchangeRates;
+                        } else {
+                            throw new CurrencyNotSupportedException("Not supported: " + base);
+                        }
+                    }
+                }
+        );
 
         RatesProvider provider = new RatesProvider(apiClient);
 
         //when
-        Double rate = provider.getExchangeRate(Currency.getInstance(SEK), Currency.getInstance(USD));
+        Double rate = provider.getExchangeRate(Currency.getInstance(SEK), Currency.getInstance("CAD"));
 
         //then
-        assertEquals(exchangeRates.get(SEK), rate);
+        assertThat(10.30).isEqualTo(rate);
     }
 
     @Test
@@ -115,7 +130,7 @@ class RatesProviderTests {
         provider.getExchangeRateInEUR(Currency.getInstance(SEK));
 
         //then
-        Mockito.verify(apiClient, Mockito.times(1)).getLatestRates();
+        Mockito.verify(apiClient).getLatestRates();
     }
 
     private ExchangeRates initializeExchangeRates() {
