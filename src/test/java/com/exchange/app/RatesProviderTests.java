@@ -94,7 +94,7 @@ class RatesProviderTests {
         RatesProvider provider = new RatesProvider(apiClient);
 
         //when
-        Double rate = provider.getExchangeRate(Currency.getInstance(SEK), Currency.getInstance("CAD"));
+        Double rate = provider.getExchangeRate(Currency.getInstance(SEK), Currency.getInstance(USD));
 
         //then
         assertThat(10.30).isEqualTo(rate);
