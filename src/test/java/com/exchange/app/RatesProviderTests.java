@@ -4,17 +4,22 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Currency;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
-import static org.assertj.core.api.Assertions.anyOf;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 
 class RatesProviderTests {
 
@@ -22,12 +27,14 @@ class RatesProviderTests {
     private static final String USD = "USD";
     private static final String EUR = "EUR";
 
-    private Map<String, Double> rates;
+    private ForeignExchangeRatesApiClient apiClient;
+    private RatesProvider provider;
+    private Random random = new Random(System.nanoTime());
 
     @BeforeEach
     void setUp() {
-        rates = new HashMap<String, Double>() {
-        };
+        apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
+        provider = new RatesProvider(apiClient);
     }
 
     @Test
@@ -35,11 +42,8 @@ class RatesProviderTests {
     void test1() {
 
         //given
-        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
         ExchangeRates exchangeRates = initializeExchangeRates();
         Mockito.when(apiClient.getLatestRates()).thenReturn(exchangeRates);
-
-        RatesProvider provider = new RatesProvider(apiClient);
 
         //when
         Double rateUSD = provider.getExchangeRateInEUR(Currency.getInstance(USD));
@@ -52,11 +56,8 @@ class RatesProviderTests {
     @DisplayName("For default currency (EUR) returns all rates")
     void test2() {
         //given
-        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
         ExchangeRates exchangeRates = initializeExchangeRates();
         Mockito.when(apiClient.getLatestRates()).thenReturn(exchangeRates);
-
-        RatesProvider provider = new RatesProvider(apiClient);
 
         //when
         Double rateSEK = provider.getExchangeRateInEUR(Currency.getInstance(SEK));
@@ -72,9 +73,8 @@ class RatesProviderTests {
     @Test
     void shouldReturnCurrencyExchangeRatesForOtherCurrency() {
         //given
-        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
         ExchangeRates exchangeRates = initializeExchangeRates();
-        List<String> currencies = Arrays.asList(new String[]{EUR, SEK, USD});
+        List<String> currencies = Arrays.asList(EUR, SEK, USD);
 
         Mockito.when(apiClient.getLatestRates(anyString())).thenAnswer(
                 new Answer<ExchangeRates>() {
@@ -91,25 +91,19 @@ class RatesProviderTests {
                 }
         );
 
-        RatesProvider provider = new RatesProvider(apiClient);
-
         //when
         Double rate = provider.getExchangeRate(Currency.getInstance(SEK), Currency.getInstance(USD));
 
         //then
-        assertThat(10.30).isEqualTo(rate);
+        assertThat(exchangeRates.get(SEK)).isEqualTo(rate);
     }
 
     @Test
     void shouldThrowExceptionWhenCurrencyNotSupported() {
         //given
-        ForeignExchangeRatesApiClient apiClient = Mockito.mock(ForeignExchangeRatesApiClient.class);
         Mockito.when(apiClient.getLatestRates()).thenThrow(new IllegalArgumentException());
 
-        RatesProvider provider = new RatesProvider(apiClient);
-
         //then
-
         CurrencyNotSupportedException actual =
                 assertThrows(CurrencyNotSupportedException.class,
                         () -> provider.getExchangeRateInEUR(Currency.getInstance("CHF")));
@@ -134,14 +128,16 @@ class RatesProviderTests {
     }
 
     private ExchangeRates initializeExchangeRates() {
-        rates.put(USD, 1.22);
-        rates.put(SEK, 10.30);
+        Map<String, Double> rates = new HashMap<String, Double>() {};
+        rates.put(USD, random.nextDouble());
+        rates.put(SEK, random.nextDouble());
         return initializeExchangeRates(EUR, DateTime.now(), rates);
     }
 
     private ExchangeRates initializeExchangeRates(String base) {
-        rates.put(EUR, 1.22);
-        rates.put(SEK, 10.30);
+        Map<String, Double> rates = new HashMap<String, Double>() {};
+        rates.put(EUR, random.nextDouble());
+        rates.put(SEK, random.nextDouble());
         return initializeExchangeRates(base, DateTime.now(), rates);
     }
 
