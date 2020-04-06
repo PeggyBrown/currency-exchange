@@ -3,7 +3,6 @@ package com.exchange.app;
 import org.joda.time.DateTime;
 
 import java.util.List;
-import java.util.Map;
 
 public interface ForeignExchangeRatesApiClient {
 
